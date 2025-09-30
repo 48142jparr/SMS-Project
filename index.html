@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- HTML root element with language attribute set to English -->
+<head>
+    <!-- Document metadata section - not visible to users -->
+    <meta charset="UTF-8">
+    <!-- Character encoding declaration - supports international characters -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Viewport meta tag for responsive design on mobile devices -->
+    <title>SMS Sender</title>
+    <!-- Browser tab title -->
+    
+    <style>
+        /* CSS styles for the page layout and appearance */
+        
+        body {
+            /* Main page styling */
+            font-family: Arial, sans-serif;  /* Use Arial font, fallback to any sans-serif */
+            max-width: 600px;                /* Limit page width to 600 pixels */
+            margin: 0 auto;                  /* Center the content horizontally */
+            padding: 20px;                   /* Add 20px padding around content */
+            position: relative;              /* Enable positioning for child elements */
+        }
+        
+        .left-image-container {
+            /* Container for the image positioned above the heading */
+            text-align: center;             /* Center the image horizontally */
+            margin-bottom: 20px;            /* Add space below the image */
+        }
+        
+        .left-image {
+            /* Styling for the centered image above heading */
+            max-height: 80px;               /* Limit image height to 80px */
+            max-width: 200px;               /* Limit image width to 200px */
+            width: auto;                    /* Maintain aspect ratio */
+            height: auto;                   /* Maintain aspect ratio */
+            display: block;                 /* Make it a block element */
+            margin: 0 auto;                 /* Center the image horizontally */
+        }
+        
+        .form-group {
+            /* Styling for form field containers */
+            margin-bottom: 15px;             /* Add 15px space below each form group */
+        }
+        
+        label {
+            /* Styling for form field labels */
+            display: block;                  /* Make labels appear on their own line */
+            margin-bottom: 5px;              /* Add 5px space below labels */
+            font-weight: bold;               /* Make label text bold */
+        }
+        
+        input, textarea, button {
+            /* Common styling for all form elements */
+            width: 100%;                     /* Make elements fill the full width */
+            padding: 8px;                    /* Add 8px padding inside elements */
+            box-sizing: border-box;          /* Include padding in width calculation */
+        }
+        
+        input[readonly] {
+            /* Styling for read-only input fields */
+            background-color: #f5f5f5;       /* Light gray background */
+            color: #666;                     /* Darker gray text */
+            cursor: not-allowed;             /* Show not-allowed cursor */
+        }
+        
+        button {
+            /* Additional styling specific to buttons */
+            background-color: #4CAF50;       /* Green background color */
+            color: white;                    /* White text color */
+            border: none;                    /* Remove default border */
+            cursor: pointer;                 /* Show pointer cursor on hover */
+            padding: 10px;                   /* Override padding to 10px for buttons */
+        }
+        
+        button:hover {
+            /* Button styling when user hovers over it */
+            background-color: #45a049;       /* Slightly darker green on hover */
+        }
+        
+        #result {
+            /* Styling for the result message area */
+            margin-top: 20px;                /* Add 20px space above result area */
+            padding: 10px;                   /* Add 10px padding inside result area */
+            border: 1px solid #ddd;          /* Add light gray border */
+            display: none;                   /* Hide result area by default */
+        }
+    </style>
+</head>
+<body>
+    <!-- Image positioned in middle of far left side -->
+    <div class="left-image-container">
+        <img src="image.png" alt="Image" class="left-image">
+    </div>
+    
+    <h1>GoTo Connect SMS Sender</h1>
+    <div class="form-group">
+        <label for="from">From (Phone Number):</label>
+        <input type="text" id="from" value="+15625791776">
+    </div>
+    <div class="form-group">
+        <label for="to">To (Phone Number):</label>
+        <input type="text" id="to" value="+17143059601">
+    </div>
+    <div class="form-group">
+        <label for="message">Message:</label>
+        <textarea id="message" rows="4"></textarea>
+    </div>
+    <button id="sendBtn">Send SMS</button>
+    <div id="result"></div>
+
+    <script>
+        /* JavaScript code for SMS sending functionality */
+        
+        // Add event listener to the Send SMS button
+        // This function runs when the button is clicked
+        document.getElementById('sendBtn').addEventListener('click', async () => {
+            // Get values from the form input fields
+            const from = document.getElementById('from').value;     // Sender phone number
+            const to = document.getElementById('to').value;         // Recipient phone number
+            const message = document.getElementById('message').value; // SMS message text
+            const resultDiv = document.getElementById('result');    // Result display container
+            
+            // Validate that all required fields are filled
+            if (!from || !to || !message) {
+                alert('Please fill all fields');  // Show error popup if any field is empty
+                return;                            // Exit function early
+            }
+            
+            try {
+                // Send HTTP POST request to the backend API
+                const response = await fetch('/api/send-sms', {
+                    method: 'POST',                           // Use POST method for sending data
+                    headers: {
+                        'Content-Type': 'application/json'    // Specify that we're sending JSON data
+                    },
+                    body: JSON.stringify({ from, to, message }) // Convert form data to JSON string
+                });
+                
+                // Parse the JSON response from the server
+                const data = await response.json();
+                
+                // Make the result container visible
+                resultDiv.style.display = 'block';
+                
+                // Check if the request was successful (HTTP status 200-299)
+                if (response.ok) {
+                    // Display success message with SMS details
+                    resultDiv.innerHTML = `<p>Message sent successfully!</p>
+                        <p>Message ID: ${data.id}</p>`;
+                    resultDiv.style.backgroundColor = '#dff0d8';  // Light green background for success
+                } else {
+                    // Display error message from server
+                    resultDiv.innerHTML = `<p>Error: ${data.error || 'Unknown error'}</p>`;
+                    resultDiv.style.backgroundColor = '#f2dede';  // Light red background for errors
+                }
+            } catch (error) {
+                // Handle network errors or other JavaScript errors
+                resultDiv.style.display = 'block';               // Make result container visible
+                resultDiv.innerHTML = `<p>Error: ${error.message}</p>`;  // Display error message
+                resultDiv.style.backgroundColor = '#f2dede';      // Light red background for errors
+            }
+        });
+    </script>
+</body>
+<!-- End of body section -->
+</html>
+<!-- End of HTML document -->

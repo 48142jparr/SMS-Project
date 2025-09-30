@@ -1,2 +1,8 @@
-node_modules/
+# IntelliJ IDEA
+.idea/
+
+# Environment variables
 .env
+
+# Dependencies
+node_modules/
